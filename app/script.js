@@ -14,35 +14,67 @@ const AppDescription = () => {
 
 
 class App extends React.Component {
-  constructor() {
-    super();
-
-    setInterval(() => {
-      this.forceUpdate();
-    }, 1000);
-  }
-
-  state = {
+    state = {
     status: 'off',
     time: 0,
     timer: null,
   }
 
-  step = () => {
-
+  playBell = () => {
+    const bell = new Audio('./sounds/bell.wav');
+    bell.play();
   };
-    
+
+  step = () => {
+    const { time, status } = this.state;
+    let counter = time - 1;
+
+    if(counter > 0) {
+      this.setState({
+        time: counter,
+      })  
+    }
+     
+    if(counter === 0 && status == 'work') {
+      this.playBell();
+      this.setState({
+        status: 'rest',
+        time: 20,
+      })
+    } else if(counter === 0 && status == 'rest') {
+      this.playBell();
+      this.setState({
+        status: 'work',
+        time: 10,
+      })
+    }
+  }
+
   startTimer = () => {
   
     this.setState({
       status: 'work',
-      time: 1200,
+      time: 10,
       timer: setInterval(this.step, 1000),
     });
   };
 
+  stopTimer = () => {
+    const { timer } = this.state;
+
+    clearInterval(timer);
+    this.setState({
+      time: 0,
+      status: 'off',
+    })
+  }
+
+closeApp = () => {
+  window.close();
+}
+
   render() {
-    const { status, time, timer } = this.state;
+    const { status, time } = this.state;
 
     return (
       <div>
@@ -50,10 +82,10 @@ class App extends React.Component {
         {(status === 'off') && <AppDescription />}
         {(status === 'off') && <button onClick={this.startTimer} className="btn">Start</button>}
         {(status !== 'off') && <div className="timer">{formatTime(time)}</div>}
-        {(status !== 'off') && <button className="btn">Stop</button>}
+        {(status !== 'off') && <button onClick={this.stopTimer} className="btn">Stop</button>}
         {(status === 'work') && <img src="./images/work.png" />}
         {(status === 'rest') && <img src="./images/rest.png" />} 
-        <button className="btn btn-close">X</button>
+        <button onClick={this.closeApp} className="btn btn-close">X</button>
       </div>
     )
   }
